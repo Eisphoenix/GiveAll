@@ -4,5 +4,6 @@ author: Eisphoenix
 main: de.eisphoenix.giveall.GiveAll
 commands:
   giveall:
-    usage: /<command> <amount>
+    usage: /<command> <menge>
     permission: giveall.use
+    description: Gibt jedem Spieler das Item aus deiner Hand

@@ -34,25 +34,25 @@ public final class GiveAll extends JavaPlugin {
         if (!cmd.getName().equalsIgnoreCase("giveall"))
             return false;
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.BOLD.toString() + ChatColor.DARK_RED + "You must be a Player");
+            sender.sendMessage(ChatColor.BOLD.toString() + ChatColor.DARK_RED + "Du musst ein Spieler sein");
             return true;
         }
         if (args.length != 1) {
-            sender.sendMessage(ChatColor.BOLD + "USAGE: " + ChatColor.RESET + ChatColor.DARK_RED + "/Giveall <Amount>");
+            sender.sendMessage(ChatColor.BOLD + "Verwendung: " + ChatColor.RESET + ChatColor.DARK_RED + "/Giveall <Menge>");
             return true;
         }
         try {
             if (Integer.parseInt(args[0]) < 1) {
-                sender.sendMessage(ChatColor.DARK_RED + "Amount must be about 0");
+                sender.sendMessage(ChatColor.DARK_RED + "Menge muss über 0 sein");
                 return true;
             }
         } catch (NumberFormatException ex) {
-            sender.sendMessage(ChatColor.BOLD + "USAGE: " + ChatColor.RESET + ChatColor.DARK_RED + "/Giveall <Amount>");
+            sender.sendMessage(ChatColor.BOLD + "Verwendung: " + ChatColor.RESET + ChatColor.DARK_RED + "/Giveall <Menge>");
             return true;
         }
         final Player p = (Player) sender;
         if (p.getItemInHand() == null || p.getItemInHand().getType() == Material.AIR) {
-            p.sendMessage(ChatColor.BOLD.toString() + ChatColor.DARK_RED + "You need to have an item in your hand");
+            p.sendMessage(ChatColor.BOLD.toString() + ChatColor.DARK_RED + "Du musst ein Item in der Hand halten!");
             return true;
         }
         final ItemStack is = p.getItemInHand().clone();
