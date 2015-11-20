@@ -4,6 +4,10 @@
 
 package de.eisphoenix.giveall;
 
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -12,6 +16,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.lang.reflect.Method;
 
 /**
  * Created by Eisphoenix in 2015.
@@ -57,14 +63,40 @@ public final class GiveAll extends JavaPlugin {
         }
         final ItemStack is = p.getItemInHand().clone();
         is.setAmount(Integer.parseInt(args[0]));
+
+        final BaseComponent[] broadcastMessage = getBaseComponentMessage(p, is);
+        if (broadcastMessage != null)
+            Bukkit.spigot().broadcast(broadcastMessage);
+
         for (final Player player : Bukkit.getOnlinePlayers())
             player.getInventory().addItem(is);
         return true;
     }
 
-    private String firstCharUpperCase(final String s) {
-        if (s.length() == 0)
-            return "";
-        return s.substring(0, 1).toUpperCase() + s.substring(1).toLowerCase();
+    private BaseComponent[] getBaseComponentMessage(final Player p, final ItemStack is) {
+        final Class<?> craftItemClazz = ReflectionUtil.getCBClass("inventory.CraftItemStack");
+        final Class<?> nmsItemStackClazz = ReflectionUtil.getNMSClass("ItemStack");
+        final Class<?> nmsNBTTagCompoundClazz = ReflectionUtil.getNMSClass("NBTTagCompound");
+        if (craftItemClazz == null || nmsItemStackClazz == null || nmsNBTTagCompoundClazz == null)
+            return null;
+        final Method asNMSMethod;
+        final Method saveNMSItemStackMethod;
+        final Object nmsItemStack;
+        final Object finalNMSItemStack;
+        try {
+            asNMSMethod = craftItemClazz.getMethod("asNMSCopy", ItemStack.class);
+            saveNMSItemStackMethod = nmsItemStackClazz.getMethod("save", nmsNBTTagCompoundClazz);
+            nmsItemStack = asNMSMethod.invoke(null, is);
+            finalNMSItemStack = saveNMSItemStackMethod.invoke(nmsItemStack, nmsNBTTagCompoundClazz.newInstance());
+        } catch (ReflectiveOperationException ex) {
+            return null;
+        }
+        return new ComponentBuilder("[Event]").color(net.md_5.bungee.api.ChatColor.LIGHT_PURPLE)
+                .append(" Der Spieler ").color(net.md_5.bungee.api.ChatColor.GREEN)
+                .append(p.getName())
+                .append(" verteilt ").color(net.md_5.bungee.api.ChatColor.GREEN)
+                .append("dieses Item").color(net.md_5.bungee.api.ChatColor.DARK_GREEN).underlined(true)
+                .event(new HoverEvent(HoverEvent.Action.SHOW_ITEM, new BaseComponent[]{new TextComponent(finalNMSItemStack.toString())}))
+                .append("!").color(net.md_5.bungee.api.ChatColor.GREEN).underlined(false).create();
     }
 }
