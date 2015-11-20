@@ -1,0 +1,8 @@
+name: GiveAll
+version: 1.0
+author: Eisphoenix
+main: de.eisphoenix.giveall.GiveAll
+commands:
+  giveall:
+    usage: /<command> <amount>
+    permission: giveall.use
